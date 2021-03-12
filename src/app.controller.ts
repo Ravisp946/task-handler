@@ -2,6 +2,7 @@ import { Controller, Get, Body, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AddTaskDto } from './dto/AddTask.dto';
 import { EditTaskDto } from './dto/EditTask.dto';
+import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -24,5 +25,10 @@ export class AppController {
   @Patch('/task/edit')
   async editTask(@Body() dto: EditTaskDto) {
     this.appService.editTask(dto.taskId, dto.task);
+  }
+
+  @Get('/task/fetch')
+  async fetch(@Body() dto: FetchUserTaskDto) {
+    return this.appService.fetchUserTask(dto);
   }
 }
