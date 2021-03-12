@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "jsw",
+            "runtimeExecutable": "/Users/ravisp/.nvm/versions/node/v10.12.0/bin/node",
+            "env": {
+                "NODE_ENV": "dev",
+                "PORT": "2230",
+                "USE_DEFAULT_ORG": "yes",
+                "LOCAL": "true"
+            },
+            "program": "${workspaceFolder}/dist/src/main.js"
+        }
+    ]
+}

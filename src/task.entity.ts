@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity()
@@ -21,7 +22,7 @@ export class Task {
     jiraId?: string;
 
     @Column({ type: 'text', name: 'status', default: 'TO-DO' })
-    status: 'TO-DO' | 'IN PROGRESS' | 'DONE';
+    status: string;
 
     @Column({ type: 'text', name: 'time_estimate' })
     timeEstimate: string; 
