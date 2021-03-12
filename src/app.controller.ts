@@ -1,8 +1,10 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Get, Body, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AddTaskDto } from './dto/AddTask.dto';
 import { EditTaskDto } from './dto/EditTask.dto';
 import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
+import { PickTaskDto } from './dto/PickTask.dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -30,5 +32,10 @@ export class AppController {
   @Post('/task/fetch')
   async fetch(@Body() dto: FetchUserTaskDto) {
     return this.appService.fetchUserTask(dto);
+  }
+
+  @Patch('/task/pick')
+  async pickTask(@Body() dto: PickTaskDto) {
+    this.appService.pickTask(dto);
   }
 }

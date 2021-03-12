@@ -5,6 +5,9 @@ import { Injectable } from '@nestjs/common';
 import { Pool } from 'pg'; 
 import { AddTaskDto } from './dto/AddTask.dto';
 import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
+import { PickTaskDto } from './dto/PickTask.dto';
+import moment = require('moment');
+import { IncomingWebhook, IncomingWebhookResult, IncomingWebhookSendArguments } from '@slack/webhook';
 // import ormconfig from '../ormconfig.json';
 const ormconfig = require('../ormconfig.json');
 @Injectable()
@@ -31,7 +34,7 @@ export class AppService {
          throw err;
       }
   }
-  
+
   async addTask(task: AddTaskDto) {
     const pool = new Pool({
       user: ormconfig.username,
@@ -67,6 +70,7 @@ export class AppService {
       throw err;
     }
   }
+
   async fetchUserTask(dto: FetchUserTaskDto) {
       const pool = new Pool({
         user: ormconfig.username,
@@ -105,4 +109,64 @@ export class AppService {
         throw err;
       }
   }
+
+  async pickTask(dto: PickTaskDto){
+    // fire event
+    const pool = new Pool({
+      user: ormconfig.username,
+      host: ormconfig.host,
+      database: ormconfig.database,
+      password: ormconfig.password,
+    });
+    const { id, startingTime } = dto;
+    try {
+      // fire notification event for Task Pick
+      const url = 'https://hooks.slack.com/services/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';
+      const attachments = [
+        {
+          color: '#a63646',
+          title: 'Task Status Update',
+          text: '```' + 'Ravi has started task 1' + '```',
+        },
+      ];
+      await this.sendSlackMessage({ attachments }, url);
+      // const start = new Date();
+      await pool.query(`update task set status = 'IN PROGRESS', starting_time = $1 where id = $2`, [
+        startingTime, Number(id)
+      ]);
+      const taskObject = await pool.query(`select * from task where id = $1`,[Number(id)]);
+      const taskDetails = taskObject.rows[0];
+      const currentDate = new Date();
+      const estimatedTime = taskDetails.time_estimate;
+      const deadLineTime = moment(currentDate).add(estimatedTime, 'hours').toDate();
+      const eventFireTimeinMs = Math.abs(deadLineTime.getTime() - startingTime.getTime());
+      const userName = 'Nikhil';
+      // fire notification event for deadline 
+      setTimeout(function(){
+        const url = 'https://hooks.slack.com/services/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';
+        const attachments = [
+          {
+            color: '#a63646',
+            title: 'Task Status Update',
+            text: '```' + `${userName} Your Task Time is about to get over` + '```',
+          },
+        ];
+        const webhook = new IncomingWebhook(url);
+        webhook.send({attachments});
+      }, eventFireTimeinMs);
+      await pool.end();
+      return { status : 'OK' };
+    } catch(err){
+      if(!pool.ended){
+        await pool.end();
+      }
+      throw err;
+    }
+  }
+
+  async sendSlackMessage(messageObject: string | IncomingWebhookSendArguments, url: string) {
+		const webhook = new IncomingWebhook(url);
+		return webhook.send(messageObject);
+	}
+
 }
