@@ -42,19 +42,19 @@ export class AppService {
         const { userId } = dto;
         let taskObject;
         if(userId){
-          taskObject = await pool.query(`Select task.*, user.name from task left join user on user.id = task.assignorId where id = $1 order by task.id`, [userId]);
+          taskObject = await pool.query(`Select task.*, users.name from task left join users on users.id = task.assignor_id where id = $1 order by task.id`, [userId]);
         } else {
-          taskObject = await pool.query(`Select task.* from task left join user on user.id = task.assignorId order by task.id`);
+          taskObject = await pool.query(`Select task.* from task left join users on users.id = task.assignor_id order by task.id`);
         }
         await pool.end();
         const result = {};
         const taskObjectRows = taskObject.rows;
         taskObjectRows.forEach((task) => {
-          result[task.assignorId] = [];
+          result[task.assignor_id] = [];
         });
 
         taskObjectRows.forEach((task) => {
-          result[task.assignorId].push(task);
+          result[task.assignor_id].push(task);
         });
         return result;
       } catch(err){
