@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+/* eslint-disable prettier/prettier */
+import { Body, Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
 
 @Controller()
 export class AppController {
@@ -13,5 +15,10 @@ export class AppController {
   @Get('/task/add')
   async addTask() {
     return this.appService.addTask();
+  }
+
+  @Get('/task/fetch')
+  async fetch(@Body() dto: FetchUserTaskDto) {
+    return this.appService.fetchUserTask(dto);
   }
 }
