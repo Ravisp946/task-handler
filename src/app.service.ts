@@ -31,6 +31,7 @@ export class AppService {
          throw err;
       }
   }
+  
   async addTask(task: AddTaskDto) {
     const pool = new Pool({
       user: ormconfig.username,
@@ -48,6 +49,7 @@ export class AppService {
       throw err;
     }
   }
+
   async editTask(taskId, task: AddTaskDto) {
     const pool = new Pool({
       user: ormconfig.username,

@@ -27,7 +27,7 @@ export class AppController {
     this.appService.editTask(dto.taskId, dto.task);
   }
 
-  @Get('/task/fetch')
+  @Post('/task/fetch')
   async fetch(@Body() dto: FetchUserTaskDto) {
     return this.appService.fetchUserTask(dto);
   }
