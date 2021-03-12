@@ -24,6 +24,6 @@ export class Task {
     @Column({ type: 'text', name: 'status', default: 'TO-DO' })
     status: string;
 
-    @Column({ type: 'text', name: 'time_estimate' })
-    timeEstimate: string; 
+    @Column({ type: 'integer', name: 'time_estimate' })
+    timeEstimate: number; 
 }
