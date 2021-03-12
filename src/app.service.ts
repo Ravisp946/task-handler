@@ -7,7 +7,7 @@ import { AddTaskDto } from './dto/AddTask.dto';
 import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
 import { PickTaskDto } from './dto/PickTask.dto';
 import moment = require('moment');
-import { IncomingWebhook, IncomingWebhookResult, IncomingWebhookSendArguments } from '@slack/webhook';
+import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
 // import ormconfig from '../ormconfig.json';
 const ormconfig = require('../ormconfig.json');
 @Injectable()
@@ -110,15 +110,32 @@ export class AppService {
       }
   }
 
-  async pickTask(dto: PickTaskDto){
-    // fire event
+  async markTaskDone(taskId) {
     const pool = new Pool({
       user: ormconfig.username,
       host: ormconfig.host,
       database: ormconfig.database,
       password: ormconfig.password,
     });
+    try {
+      await pool.query('update task set status="DONE" where id = $1', taskId);
+      await pool.end();
+    } catch (err) {
+      if (!pool.ended) {
+        await pool.end();
+      }
+      throw err;
+    }
+  }
+
+  async pickTask(dto: PickTaskDto){
     const { id, startingTime } = dto;
+    const pool = new Pool({
+      user: ormconfig.username,
+      host: ormconfig.host,
+      database: ormconfig.database,
+      password: ormconfig.password,
+    });
     try {
       // fire notification event for Task Pick
       const url = 'https://hooks.slack.com/services/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';

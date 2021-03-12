@@ -5,6 +5,7 @@ import { AddTaskDto } from './dto/AddTask.dto';
 import { EditTaskDto } from './dto/EditTask.dto';
 import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
 import { PickTaskDto } from './dto/PickTask.dto';
+import { MarkDoneDto } from './dto/MarkDone.dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -37,5 +38,10 @@ export class AppController {
   @Patch('/task/pick')
   async pickTask(@Body() dto: PickTaskDto) {
     this.appService.pickTask(dto);
+  }
+  
+  @Patch('/task/markDone')
+  async markDone(@Body() dto: MarkDoneDto) {
+    return this.appService.markTaskDone(dto.taskId);
   }
 }
