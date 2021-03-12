@@ -3,6 +3,7 @@ import { AppService } from './app.service';
 import { AddTaskDto } from './dto/AddTask.dto';
 import { EditTaskDto } from './dto/EditTask.dto';
 import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
+import { MarkDoneDto } from './dto/MarkDone.dto';
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
@@ -30,5 +31,10 @@ export class AppController {
   @Post('/task/fetch')
   async fetch(@Body() dto: FetchUserTaskDto) {
     return this.appService.fetchUserTask(dto);
+  }
+
+  @Patch('/task/markDone')
+  async markDone(@Body() dto: MarkDoneDto) {
+    return this.appService.markTaskDone(dto.taskId);
   }
 }

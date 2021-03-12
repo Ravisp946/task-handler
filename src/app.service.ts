@@ -105,4 +105,21 @@ export class AppService {
         throw err;
       }
   }
+  async markTaskDone(taskId) {
+    const pool = new Pool({
+      user: ormconfig.username,
+      host: ormconfig.host,
+      database: ormconfig.database,
+      password: ormconfig.password,
+    });
+    try {
+      await pool.query('update task set status="DONE" where id = $1', taskId);
+      await pool.end();
+    } catch (err) {
+      if (!pool.ended) {
+        await pool.end();
+      }
+      throw err;
+    }
+  }
 }
