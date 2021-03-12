@@ -26,4 +26,7 @@ export class Task {
 
     @Column({ type: 'integer', name: 'time_estimate' })
     timeEstimate: number; 
+
+    @Column({ type: 'timestamp with time zone', name: 'starting_time', nullable: true})
+    startingTime: Date;
 }

@@ -47,6 +47,7 @@ export class AppService {
           taskObject = await pool.query(`Select task.* from task left join users on users.id = task.assignor_id order by task.id`);
         }
         await pool.end();
+        const currentDate = new Date();
         const result = {};
         const taskObjectRows = taskObject.rows;
         taskObjectRows.forEach((task) => {
@@ -54,10 +55,14 @@ export class AppService {
         });
 
         taskObjectRows.forEach((task) => {
+          if(task.starting_time){
+            const hours = Math.abs(currentDate.getTime() - task.starting_time.getTime()) / 36e5;
+            task.time_elapsed = hours;
+          }
           result[task.assignor_id].push(task);
         });
         return result;
-      } catch(err){
+      } catch(err){ 
         if(!pool.ended){
           await pool.end();
         }
