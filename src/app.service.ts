@@ -120,7 +120,7 @@ export class AppService {
       password: ormconfig.password,
     });
     try {
-      await pool.query(`update task set status='DONE' where id = $1`, taskId);
+      await pool.query(`update task set status='DONE' where id = $1`, [taskId]);
       await pool.end();
       return { status : 'OK'};
     } catch (err) {
