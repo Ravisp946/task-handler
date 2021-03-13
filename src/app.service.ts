@@ -8,6 +8,7 @@ import { FetchUserTaskDto } from './dto/FetchUserTask.dto';
 import { PickTaskDto } from './dto/PickTask.dto';
 import moment = require('moment');
 import { IncomingWebhook, IncomingWebhookSendArguments } from '@slack/webhook';
+import { title } from 'node:process';
 // import ormconfig from '../ormconfig.json';
 const ormconfig = require('../ormconfig.json');
 @Injectable()
@@ -141,34 +142,37 @@ export class AppService {
     });
     try {
       // fire notification event for Task Pick
-      const url = 'https://hooks.slack.com/services/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';
+      const taskObject = await pool.query(`select task.*, users.name from task left join users on users.id = task.assignee_id where task.id = $1`,[Number(id)]);
+      const taskDetails = taskObject.rows[0];
+      const userName = taskDetails.name;
+      const title = taskDetails.title;
+      const url = 'https://hooks.slack.com/services/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';
       const attachments = [
         {
           color: '#a63646',
           title: 'Task Status Update',
-          text: '```' + 'Ravi has started task 1' + '```',
+          text: '```' + `${userName} has started Task ${title}` + '```',
         },
       ];
       await this.sendSlackMessage({ attachments }, url);
       // const start = new Date();
+      const start = new Date();
       await pool.query(`update task set status = 'IN PROGRESS', starting_time = $1 where id = $2`, [
-        startingTime, Number(id)
+        start, Number(id)
       ]);
-      const taskObject = await pool.query(`select * from task where id = $1`,[Number(id)]);
-      const taskDetails = taskObject.rows[0];
+      
       const currentDate = new Date();
       const estimatedTime = taskDetails.time_estimate;
       const deadLineTime = moment(currentDate).add(estimatedTime, 'hours').toDate();
-      const eventFireTimeinMs = Math.abs(deadLineTime.getTime() - startingTime.getTime());
-      const userName = 'Nikhil';
+      const eventFireTimeinMs = Math.abs(deadLineTime.getTime() - start.getTime());
       // fire notification event for deadline 
       setTimeout(function(){
-        const url = 'https://hooks.slack.com/services/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';
+        const url = 'https://hooks.slack.com/services/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';
         const attachments = [
           {
             color: '#a63646',
             title: 'Task Status Update',
-            text: '```' + `${userName} Your Task Time is about to get over` + '```',
+            text: '```' + `${userName} Your Task ${title} Time is about to get over` + '```',
           },
         ];
         const webhook = new IncomingWebhook(url);
