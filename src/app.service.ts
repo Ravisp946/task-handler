@@ -84,16 +84,16 @@ export class AppService {
         const { userId } = dto;
         let taskObject;
         if(userId){
-          taskObject = await pool.query(`Select task.*, users.name from task left join users on users.id = task.assignor_id where id = $1 order by task.id`, [userId]);
+          taskObject = await pool.query(`Select task.* from task where assignee_id = $1 order by task.id`, [userId]);
         } else {
-          taskObject = await pool.query(`Select task.* from task left join users on users.id = task.assignor_id order by task.id`);
+          taskObject = await pool.query(`Select task.* from task order by task.id`);
         }
         await pool.end();
         const currentDate = new Date();
         const result = {};
         const taskObjectRows = taskObject.rows;
         taskObjectRows.forEach((task) => {
-          result[task.assignor_id] = [];
+          result[task.assignee_id] = [];
         });
 
         taskObjectRows.forEach((task) => {
@@ -101,7 +101,7 @@ export class AppService {
             const hours = Math.abs(currentDate.getTime() - task.starting_time.getTime()) / 36e5;
             task.time_elapsed = hours;
           }
-          result[task.assignor_id].push(task);
+          result[task.assignee_id].push(task);
         });
         return result;
       } catch(err){ 
@@ -132,7 +132,9 @@ export class AppService {
   }
 
   async pickTask(dto: PickTaskDto){
-    const { id, startingTime } = dto;
+    const { id } = dto;
+    let  { startingTime } = dto;
+    startingTime = moment(startingTime).toDate();
     const pool = new Pool({
       user: ormconfig.username,
       host: ormconfig.host,
@@ -145,7 +147,7 @@ export class AppService {
       const taskDetails = taskObject.rows[0];
       const userName = taskDetails.name;
       const title = taskDetails.title;
-      const url = 'https://hooks.slack.com/services/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';
+      const url = 'https://hooks.slack.com/services/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';
       const attachments = [
         {
           color: '#a63646',
@@ -157,16 +159,17 @@ export class AppService {
       // const start = new Date();
       const start = new Date();
       await pool.query(`update task set status = 'IN PROGRESS', starting_time = $1 where id = $2`, [
-        start, Number(id)
+        startingTime, Number(id)
       ]);
-      
+      await pool.end();
       const currentDate = new Date();
       const estimatedTime = taskDetails.time_estimate;
       const deadLineTime = moment(currentDate).add(estimatedTime, 'hours').toDate();
-      const eventFireTimeinMs = Math.abs(deadLineTime.getTime() - start.getTime());
+      const eventFireTimeinMs = Math.abs(deadLineTime.getTime() - startingTime.getTime());
+      const nintyPercentOfDeadline = eventFireTimeinMs*(0.9);
       // fire notification event for deadline 
       setTimeout(function(){
-        const url = 'https://hooks.slack.com/services/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';
+        const url = 'https://hooks.slack.com/services/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';
         const attachments = [
           {
             color: '#a63646',
@@ -176,8 +179,8 @@ export class AppService {
         ];
         const webhook = new IncomingWebhook(url);
         webhook.send({attachments});
-      }, eventFireTimeinMs);
-      await pool.end();
+      }, nintyPercentOfDeadline);
+      
       return { status : 'OK' };
     } catch(err){
       if(!pool.ended){
