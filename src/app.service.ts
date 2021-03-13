@@ -26,7 +26,7 @@ export class AppService {
       try {
         const result = await pool.query('Select * from users');
         await pool.end();
-        return result;
+        return result.rows;
       } catch(err){
          if(!pool.ended){
            await pool.end();
@@ -45,6 +45,7 @@ export class AppService {
     try {
       await pool.query('insert into task (assignor_id, assignee_id, title, description, jira_id, time_estimate) values ($1, $2, $3, $4, $5, $6)', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraId, task.timeEstimate]);
       await pool.end();
+      return { status : 'OK'};
     } catch (err) {
       if (!pool.ended) {
         await pool.end();
@@ -62,7 +63,8 @@ export class AppService {
     });
     try {
       await pool.query('update task set assignor_id = $1, assignee_id = $2, title = $3, description =$4, jira_id = $5, time_estimate = $6 where id = $7', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraId, task.timeEstimate, taskId]);
-      await pool.end()
+      await pool.end();
+      return { status : 'OK'};
     } catch (err) {
       if (!pool.ended) {
         await pool.end();
@@ -118,8 +120,9 @@ export class AppService {
       password: ormconfig.password,
     });
     try {
-      await pool.query('update task set status="DONE" where id = $1', taskId);
+      await pool.query(`update task set status='DONE' where id = $1`, taskId);
       await pool.end();
+      return { status : 'OK'};
     } catch (err) {
       if (!pool.ended) {
         await pool.end();
