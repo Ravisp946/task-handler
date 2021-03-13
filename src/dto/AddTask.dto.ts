@@ -21,7 +21,7 @@ export class AddTaskDto {
 
     @IsOptional()
     @IsString()
-    jiraID: string;
+    jiraId: string;
 
     @IsDefined()
     @IsNumber()

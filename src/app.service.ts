@@ -43,7 +43,7 @@ export class AppService {
       password: ormconfig.password,
     });
     try {
-      await pool.query('insert into task (assignor_id, assignee_id, title, description, jira_id, time_estimate) values ($1, $2, $3, $4, $5, $6)', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraID, task.timeEstimate]);
+      await pool.query('insert into task (assignor_id, assignee_id, title, description, jira_id, time_estimate) values ($1, $2, $3, $4, $5, $6)', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraId, task.timeEstimate]);
       await pool.end();
     } catch (err) {
       if (!pool.ended) {
@@ -61,7 +61,7 @@ export class AppService {
       password: ormconfig.password,
     });
     try {
-      await pool.query('update task set assignor_id = $1, assignee_id = $2, title = $3, description =$4, jira_id = $5, time_estimate = $6 where id = $7', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraID, task.timeEstimate, taskId]);
+      await pool.query('update task set assignor_id = $1, assignee_id = $2, title = $3, description =$4, jira_id = $5, time_estimate = $6 where id = $7', [task.assignorId, task.assigneeId, task.title, task.description, task.jiraId, task.timeEstimate, taskId]);
       await pool.end()
     } catch (err) {
       if (!pool.ended) {
